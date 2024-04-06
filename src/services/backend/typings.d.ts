@@ -293,4 +293,23 @@ declare namespace API {
     userRole?: string;
     createTime?: string;
   };
+
+  type getCaptchaUsingGETParams = {
+    /** emailAccount */
+    emailAccount?: string;
+  };
+
+  type BaseResponselong = {
+    code?: number;
+    data?: number;
+    message?: string;
+  };
+
+  type UserEmailRegisterRequest = {
+    agreeToAnAgreement?: string;
+    captcha?: string;
+    emailAccount?: string;
+    invitationCode?: string;
+    userName?: string;
+  };
 }

@@ -41,7 +41,6 @@ export async function getUserById(
   });
 }
 
-/** 此处后端没有提供注释 GET /user/get/login */
 export async function getLoginUser(options?: { [key: string]: any }) {
   return request<API.BaseResponseLoginUserVO>('/user/get/login', {
     method: 'GET',
@@ -167,3 +166,45 @@ export async function updateMyUser(
     ...(options || {}),
   });
 }
+
+export async function userRegisterUsingPOST(
+  body: API.UserRegisterRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponselong>('/user/register', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+export async function getCaptchaUsingGET(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getCaptchaUsingGETParams,
+  options?: { [key: string]: any },
+) {
+  // @ts-ignore
+  return request<API.BaseResponseboolean>('/api/user/getCaptcha', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+
+export async function userEmailRegisterUsingPOST(body: API.UserEmailRegisterRequest, options?: { [key: string]: any },) {
+  return request<API.BaseResponselong>('/api/user/email/register', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+

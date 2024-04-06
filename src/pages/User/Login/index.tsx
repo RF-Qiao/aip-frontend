@@ -1,16 +1,47 @@
 import Footer from '@/components/Footer';
 import { userLogin } from '@/services/backend/userController';
-import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  AlipayCircleOutlined,
+  LockOutlined,
+  TaobaoCircleOutlined,
+  UserOutlined,
+  WeiboCircleOutlined
+} from '@ant-design/icons';
 import { LoginForm, ProFormText } from '@ant-design/pro-components';
 import { useEmotionCss } from '@ant-design/use-emotion-css';
 import { Helmet, history, useModel } from '@umijs/max';
 import { message, Tabs } from 'antd';
 import React, { useState } from 'react';
 import Settings from '../../../../config/defaultSettings';
+import {Link} from "umi";
+
+const ActionIcons = () => {
+  const langClassName = useEmotionCss(({token}) => {
+    return {
+      marginLeft: '8px',
+      color: 'rgba(0, 0, 0, 0.2)',
+      fontSize: '24px',
+      verticalAlign: 'middle',
+      cursor: 'pointer',
+      transition: 'color 0.3s',
+      '&:hover': {
+        color: token.colorPrimaryActive,
+      },
+    };
+  });
+  return (
+    <>
+      <AlipayCircleOutlined key="AlipayCircleOutlined" className={langClassName}/>
+      <TaobaoCircleOutlined key="TaobaoCircleOutlined" className={langClassName}/>
+      <WeiboCircleOutlined key="WeiboCircleOutlined" className={langClassName}/>
+    </>
+  );
+};
+
 
 const Login: React.FC = () => {
   const [type, setType] = useState<string>('account');
-  const { initialState, setInitialState } = useModel('@@initialState');
+  const {setInitialState } = useModel('@@initialState');
   const containerClassName = useEmotionCss(() => {
     return {
       display: 'flex',
@@ -22,6 +53,16 @@ const Login: React.FC = () => {
       backgroundSize: '100% 100%',
     };
   });
+  const doLogin = (res: any) => {
+    if (res.data && res.code === 0) {
+      message.success('登陆成功');
+      setTimeout(() => {
+        const urlParams = new URL(window.location.href).searchParams;
+        history.push(urlParams.get('redirect') || '/');
+      }, 100);
+      setInitialState({loginUser: res.data, settings: Settings});
+    }
+  }
 
   const handleSubmit = async (values: API.UserLoginRequest) => {
     try {
@@ -29,19 +70,9 @@ const Login: React.FC = () => {
       const res = await userLogin({
         ...values,
       });
-
-      const defaultLoginSuccessMessage = '登录成功！';
-      message.success(defaultLoginSuccessMessage);
-      // 保存已登录用户信息
-      setInitialState({
-        ...initialState,
-        currentUser: res.data,
-      });
-      const urlParams = new URL(window.location.href).searchParams;
-      history.push(urlParams.get('redirect') || '/');
-      return;
-    } catch (error: any) {
-      const defaultLoginFailureMessage = `登录失败，${error.message}`;
+      doLogin(res)
+    } catch (error) {
+      const defaultLoginFailureMessage = '登录失败，请重试！';
       message.error(defaultLoginFailureMessage);
     }
   };
@@ -64,12 +95,13 @@ const Login: React.FC = () => {
             minWidth: 280,
             maxWidth: '75vw',
           }}
-          logo={<img alt="logo" style={{ height: '100%' }} src="/logo.svg" />}
-          title="鱼皮前端万用模板"
-          subTitle={'快速开发属于自己的前端项目'}
+          logo={<img alt="logo" src="/logo.gif"/>}
+          title="Qarar-API 接口开放平台"
+          subTitle={'Qarar-API 接口开放平台致力于提供稳定、安全、高效的接口调用服务'}
           initialValues={{
             autoLogin: true,
           }}
+          actions={['其他登录方式 :', <ActionIcons key="icons"/>]}
           onFinish={async (values) => {
             await handleSubmit(values as API.UserLoginRequest);
           }}
@@ -124,7 +156,14 @@ const Login: React.FC = () => {
               textAlign: 'right',
             }}
           >
-            <a>新用户注册</a>
+            <Link
+              to={'/user/register'}
+              style={{
+                float: 'right',
+              }}
+            >
+              还没账号?点击前往注册
+            </Link>
           </div>
         </LoginForm>
       </div>

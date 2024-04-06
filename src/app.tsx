@@ -5,36 +5,31 @@ import defaultSettings from '../config/defaultSettings';
 import { AvatarDropdown } from './components/RightContent/AvatarDropdown';
 import { requestConfig } from './requestConfig';
 import {getLoginUser} from "@/services/backend/userController";
-import {message} from "antd";
+import Settings from "../config/defaultSettings";
 
 const loginPath = '/user/login';
+
+const stats: InitialState = {
+  loginUser: undefined,
+  settings: Settings,
+  open: false
+};
+
 
 /**
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
  * */
 export async function getInitialState(): Promise<InitialState> {
-  const initialState: InitialState = {
-    currentUser: undefined,
-  };
-  // 如果不是登录页面，执行
-  const { location } = history;
-  if (location.pathname !== loginPath) {
-    try {
-      const res = await getLoginUser();
-      initialState.currentUser = res.data;
-    } catch (error: any) {
-      // 如果未登录
+  console.log(`API`, 'color:#e59de3')
+  try {
+    const res = await getLoginUser();
+    if (res.data && res.code === 0) {
+      stats.loginUser = res.data;
     }
-
-    // 模拟登录用户
-    // const mockUser: API.LoginUserVO = {
-    //   userAvatar: 'https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png',
-    //   userName: 'yupi',
-    //   userRole: 'admin',
-    // };
-    // initialState.currentUser = mockUser;
+  } catch (error) {
+    history.push(loginPath);
   }
-  return initialState;
+  return stats;
 }
 
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
@@ -47,7 +42,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
       },
     },
     waterMarkProps: {
-      content: initialState?.currentUser?.userName,
+      content: initialState?.loginUser?.userName,
     },
     footerRender: () => <Footer />,
     menuHeaderRender: undefined,
